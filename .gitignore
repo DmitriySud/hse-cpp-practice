@@ -33,3 +33,7 @@
 
 # Vim files
 *.sw*
+compile_commands.json
+
+#clang
+.clangd/
