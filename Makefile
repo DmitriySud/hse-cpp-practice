@@ -1,6 +1,8 @@
 BUILD_DIR ?= /tmp/hse-build/build
 CUR_PROJECT ?= !!!!
 
+PROJECTS = $(patsubst works/%/,%,$(shell ls -d works/*/))
+
 smart-format:
 	@./scripts/format.sh --smart
 
@@ -12,4 +14,10 @@ clean:
 	@echo "Done!"
 
 cmake:
-	cmake -DCMAKE_PROJECTS="${CUR_PROJECT}" -S . -B ${BUILD_DIR}
+	cmake -DTARGET_PROJECTS="${CUR_PROJECT}" -S . -B ${BUILD_DIR}
+
+$(foreach cur_work,${PROJECTS},cmake-$(cur_work)): cmake-%:
+	@$(MAKE) cmake CUR_PROJECT=works/$*
+
+test:
+	echo ${PROJECTS}

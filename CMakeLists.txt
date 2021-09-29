@@ -8,13 +8,13 @@ set(ADVICE "Better use \"make cmake-<hw-name>\" or \"make cmake-all\" to build a
 
 add_subdirectory(third_party/googletest)
 
-if (NOT DEFINED CMAKE_PROJECTS)
+if (NOT DEFINED TARGET_PROJECTS)
   message(FATAL_ERROR "Don't use cmake explicitly.\n"${ADVICE})
-elseif(${CMAKE_PROJECTS} STREQUAL "!!!!")
+elseif(${TARGET_PROJECTS} STREQUAL "!!!!")
   message(FATAL_ERROR "Something went wrong... Maybe you run \"make cmake\". It is "
     " internal command.\n" ${ADVICE})
 else()
-  message("initialized " ${CMAKE_PROJECTS})
+  message("Cmake project : " ${TARGET_PROJECTS})
+  add_subdirectory(${TARGET_PROJECTS})
 endif()
 
-add_subdirectory(big-integer)
