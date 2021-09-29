@@ -19,5 +19,5 @@ cmake:
 $(foreach cur_work,${PROJECTS},cmake-$(cur_work)): cmake-%:
 	@$(MAKE) cmake CUR_PROJECT=works/$*
 
-test:
-	echo ${PROJECTS}
+$(foreach cur_work,${PROJECTS},test-$(cur_work)): test-%: cmake-%
+	@cd ${BUILD_DIR} && make $*_test && ${BUILD_DIR}/works/$*/test/$*_test 
