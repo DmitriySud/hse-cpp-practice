@@ -19,5 +19,12 @@ cmake:
 $(foreach cur_work,${PROJECTS},cmake-$(cur_work)): cmake-%:
 	@$(MAKE) cmake CUR_PROJECT=works/$*
 
+$(foreach cur_work,${PROJECTS},build-$(cur_work)): build-%: cmake-%
+	@cd ${BUILD_DIR} && make $*_lib 
+
 $(foreach cur_work,${PROJECTS},test-$(cur_work)): test-%: cmake-%
 	@cd ${BUILD_DIR} && make $*_test && ${BUILD_DIR}/works/$*/test/$*_test 
+
+$(foreach cur_work,${PROJECTS},run-$(cur_work)): run-%: cmake-%
+	@cd ${BUILD_DIR} && make $*_exe && ${BUILD_DIR}/works/$*/src/$*_exe
+
