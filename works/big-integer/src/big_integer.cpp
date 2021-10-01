@@ -1,15 +1,50 @@
 #include "big_integer.hpp"
+#include <iomanip>
 #include <sstream>
 #include <iostream>
+#include <cctype>
+#include <cmath>
 
 BigInteger::BigInteger() : sign_(1), container_(1) {
 }
 
 BigInteger::BigInteger(std::int64_t init_value)
-    : sign_(init_value < 0 ? -1 : 1), container_(1, init_value * sign_) {
+    : BigInteger(static_cast<uint64_t>(std::abs(init_value))) {
+    sign_ = init_value < 0 ? -1 : 1;
+}
+
+BigInteger::BigInteger(std::uint64_t init_value) : sign_(1), container_(1, init_value) {
     while (container_[container_.size() - 1] >= kModule) {
         container_.emplace_back(container_[container_.size() - 1] / kModule);
         container_[container_.size() - 2] %= kModule;
+    }
+}
+
+BigInteger::BigInteger(const std::string& str) {
+    ConstuctFromString(str);
+}
+
+BigInteger::BigInteger(std::string&& str) {
+    ConstuctFromString(str);
+}
+
+void BigInteger::ConstuctFromString(const std::string& str) {
+    container_.clear();
+    sign_ = 1;
+
+    std::size_t idx = str.size();
+    while (idx - kWidth < idx) {
+        container_.emplace_back(std::stoul(str.substr(idx - kWidth, kWidth)));
+        idx -= kWidth;
+    }
+
+    std::string last = str.substr(str[0] == '-' ? 1 : 0, idx);
+    if (!last.empty()) {
+        container_.emplace_back(std::stoul(last));
+    }
+
+    if (!str.empty()) {
+        sign_ = str[0] == '-' ? -1 : 1;
     }
 }
 
@@ -91,15 +126,15 @@ bool BigInteger::ModuleCompare(const ContainerType& lhs, const ContainerType& rh
         return comp(lhs.size(), rhs.size());
     }
 
-    auto lhs_iter = lhs.begin();
-    auto rhs_iter = rhs.begin();
+    auto lhs_iter = lhs.rbegin();
+    auto rhs_iter = rhs.rbegin();
 
-    while (lhs_iter != lhs.end() && *lhs_iter == *rhs_iter) {
+    while (lhs_iter != lhs.rend() && *lhs_iter == *rhs_iter) {
         lhs_iter++;
         rhs_iter++;
     }
 
-    return lhs_iter == lhs.end() ? comp(1, 1) : comp(*lhs_iter, *rhs_iter);
+    return lhs_iter == lhs.rend() ? comp(1, 1) : comp(*lhs_iter, *rhs_iter);
 }
 
 BigInteger::ContainerType BigInteger::ModuleDif(const ContainerType& lhs,
@@ -109,7 +144,7 @@ BigInteger::ContainerType BigInteger::ModuleDif(const ContainerType& lhs,
     auto lhs_iter = lhs.begin();
     auto rhs_iter = rhs.begin();
 
-    while (rhs_iter != rhs.end() || carry != 0) {
+    while (lhs_iter != lhs.end() || carry != 0) {
         CellType new_carry{0};
         CellType lhs_cell = lhs_iter != lhs.end() ? *lhs_iter++ : 0;
         CellType rhs_cell = rhs_iter != rhs.end() ? *rhs_iter++ : 0;
@@ -120,11 +155,19 @@ BigInteger::ContainerType BigInteger::ModuleDif(const ContainerType& lhs,
         result.emplace_back(res_cell);
         carry = new_carry;
     }
+
     while (result.size() > 1 && result[result.size() - 1] == 0) {
         result.pop_back();
     }
 
     return result;
+}
+
+BigInteger& BigInteger::FixSign() {
+    if (this->container_.size() == 1 && this->container_[0] == 0) {
+        this->sign_ = 1;
+    }
+    return *this;
 }
 
 BigInteger BigInteger::operator+(const BigInteger& other) const {
@@ -133,19 +176,87 @@ BigInteger BigInteger::operator+(const BigInteger& other) const {
     } else if (ModuleCompare<Less>(container_, other.container_)) {
         return BigInteger(other.sign_, ModuleDif(other.container_, container_));
     } else {
-        auto res = BigInteger(sign_, ModuleDif(container_, other.container_));
-        if (res.container_.size() == 1 && res.container_[0] == 0) {
-            res.sign_ = 1;
-        }
-        return res;
+        return BigInteger(sign_, ModuleDif(container_, other.container_)).FixSign();
     }
 }
 
 BigInteger BigInteger::operator-(const BigInteger& other) const {
-    BigInteger copy(other);
+    return this->operator+(-other);
+}
+
+BigInteger BigInteger::operator-() const {
+    BigInteger copy(*this);
     copy.sign_ *= -1;
 
-    return this->operator+(copy);
+    return copy.FixSign();
+}
+
+BigInteger BigInteger::operator+() const {
+    return BigInteger(*this);
+}
+
+BigInteger::ContainerType BigInteger::MultiplyOne(const ContainerType& other, CellType mult,
+                                                  std::size_t shift) {
+    ContainerType res(shift, 0);
+
+    CellType carry = 0;
+    for (auto& item : other) {
+        CellType cur = item * mult + carry;
+        res.emplace_back(cur % kModule);
+        carry = cur / kModule;
+    }
+
+    while (carry != 0) {
+        res.emplace_back(carry % kModule);
+        carry /= kModule;
+    }
+
+    return res;
+}
+
+BigInteger BigInteger::operator*(const BigInteger& other) const {
+    BigInteger res;
+    res.sign_ = this->sign_ * other.sign_;
+    std::size_t shift = 0;
+    for (auto& item : this->container_) {
+        res = res + BigInteger(1, MultiplyOne(other.container_, item, shift++));
+    }
+
+    return res;
+}
+
+BigInteger BigInteger::operator/(const BigInteger& other) const {
+    BigInteger res;
+    BigInteger cur = *this;
+    if (other == BigInteger(0)) {
+        throw std::logic_error("div by zero");
+    }
+
+    while (cur >= other) {
+        BigInteger mult = 1;
+        while (other * mult * kModule < cur) {
+            mult = mult * kModule;
+        }
+
+        cur = cur - other * mult;
+        res = res + mult;
+    }
+
+    res.sign_ = this->sign_ * other.sign_;
+
+    return res;
+}
+
+BigInteger BigInteger::operator%(const BigInteger& other) const {
+    if (other == BigInteger(0)) {
+        throw std::logic_error("div by zero");
+    }
+    BigInteger result = *this - (*this / other) * other;
+    if (result < 0) {
+        result = result + other;
+    }
+
+    return result;
 }
 
 bool BigInteger::operator<(const BigInteger& other) const {
@@ -180,9 +291,22 @@ std::string BigInteger::ToString() const {
         ostream << "-";
     }
     for (auto item = container_.rbegin(); item != container_.rend(); ++item) {
-        // std::cout << *item << std::endl;
+        if (item != container_.rbegin()) {
+            ostream << std::setw(kWidth) << std::setfill('0');
+        }
         ostream << *item;
     }
 
     return ostream.str();
+}
+
+std::ostream& operator<<(std::ostream& stream, const BigInteger& num) {
+    return stream << num.ToString();
+}
+
+std::istream& operator>>(std::istream& stream, BigInteger& num) {
+    std::string tem;
+    stream >> tem;
+    num = BigInteger(tem);
+    return stream;
 }
