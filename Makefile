@@ -28,3 +28,8 @@ $(foreach cur_work,${PROJECTS},test-$(cur_work)): test-%: cmake-%
 $(foreach cur_work,${PROJECTS},run-$(cur_work)): run-%: cmake-%
 	@cd ${BUILD_DIR} && make $*_exe && ${BUILD_DIR}/works/$*/src/$*_exe
 
+
+# TODO : Add checks to build/run/test commands do we really need to restart cmake or make 
+# maybe check date of last modifying...
+
+# TODO : Add templates of CMakeLists and project structure
