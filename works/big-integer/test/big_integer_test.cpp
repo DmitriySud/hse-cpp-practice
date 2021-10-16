@@ -6,7 +6,10 @@ TEST(BigInt, Constructor) {
     BigInteger zero;
     BigInteger another_zero(0);
 
-    ASSERT_TRUE(zero == another_zero);
+    BigInteger thousand("1000");
+
+    EXPECT_EQ(zero, another_zero);
+    EXPECT_EQ(thousand, BigInteger(1000));
 }
 
 TEST(BigInt, IntToString) {
@@ -43,6 +46,22 @@ TEST(BigInt, PlusOperator) {
 
     two = two + BigInteger(-10);
     EXPECT_EQ("-5", (two + one).ToString());
+
+    EXPECT_EQ(one + 5, 12350);
+}
+
+TEST(BigInt, MultOperation) {
+    BigInteger one(12345);
+
+    EXPECT_EQ(BigInteger("61725"), one * 5);
+}
+
+TEST(BigInt, DivOperation) {
+    BigInteger one(12345);
+
+    EXPECT_EQ(BigInteger(2469), one / 5);
+    EXPECT_EQ(BigInteger(0), one % 3);
+    EXPECT_EQ(BigInteger(1), one % 2);
 }
 
 TEST(BigInt, MinusOperation) {

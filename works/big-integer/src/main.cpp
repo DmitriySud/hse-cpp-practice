@@ -1,7 +1,38 @@
 #include "big_integer.hpp"
 
-int main() {
-  
+#include <iostream>
+#include <string>
 
-  return 0;
+int main() {
+    BigInteger one, two;
+    std::string op;
+
+    std::cin >> one >> op >> two;
+
+    BigInteger result;
+    if (op == "-") {
+        result = one - two;
+    } else if (op == "+") {
+        result = one + two;
+    } else if (op == "*") {
+        result = one * two;
+    } else if (op == "/") {
+        result = one / two;
+    } else if (op == "%") {
+        result = one % two;
+    } else if (op == "<") {
+        result = one < two;
+    } else if (op == ">") {
+        result = one > two;
+    } else if (op == "<=") {
+        result = one <= two;
+    } else if (op == ">=") {
+        result = one >= two;
+    } else if (op == "==") {
+        result = one == two;
+    }
+
+    std::cout << result << std::endl;
+
+    return 0;
 }
