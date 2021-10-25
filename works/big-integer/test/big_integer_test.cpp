@@ -2,6 +2,8 @@
 
 #include <big_integer.hpp>
 
+namespace big_numbers {
+
 TEST(BigInt, Constructor) {
     BigInteger zero;
     BigInteger another_zero(0);
@@ -10,6 +12,10 @@ TEST(BigInt, Constructor) {
 
     EXPECT_EQ(zero, another_zero);
     EXPECT_EQ(thousand, BigInteger(1000));
+
+    std::string num = "123123123123123123123123";
+    BigInteger very_big_integer(num);
+    EXPECT_EQ(num, very_big_integer.ToString());
 }
 
 TEST(BigInt, IntToString) {
@@ -19,33 +25,33 @@ TEST(BigInt, IntToString) {
 
 TEST(BigInt, CopyConstructor) {
     BigInteger value{12345};
-    EXPECT_EQ("12345", BigInteger(value).ToString());
+    EXPECT_EQ(12345, BigInteger(value));
 }
 
 TEST(BigInt, MoveConstructor) {
     BigInteger value{12345};
     BigInteger other_value(std::move(value));
-    EXPECT_EQ("12345", other_value.ToString());
+    EXPECT_EQ(12345, other_value);
 }
 
 TEST(BigInt, PlusOperator) {
     BigInteger one(12345);
     BigInteger two(12345);
 
-    EXPECT_EQ("24690", (one + two).ToString());
+    EXPECT_EQ(24690, one + two);
 
     one = 12345;
     two = -12345;
 
-    EXPECT_EQ("0", (one + two).ToString());
-    EXPECT_EQ("0", (two + one).ToString());
+    EXPECT_EQ(0, one + two);
+    EXPECT_EQ(0, two + one);
 
     one = 12345;
     two = -12340;
-    EXPECT_EQ("5", (two + one).ToString());
+    EXPECT_EQ(5, two + one);
 
     two = two + BigInteger(-10);
-    EXPECT_EQ("-5", (two + one).ToString());
+    EXPECT_EQ(-5, two + one);
 
     EXPECT_EQ(one + 5, 12350);
 }
@@ -53,33 +59,34 @@ TEST(BigInt, PlusOperator) {
 TEST(BigInt, MultOperation) {
     BigInteger one(12345);
 
-    EXPECT_EQ(BigInteger("61725"), one * 5);
+    EXPECT_EQ(61725, one * 5);
+    EXPECT_EQ(BigInteger("100000000000000000000"), BigInteger("1000000000") * BigInteger("100000000000"));
 }
 
 TEST(BigInt, DivOperation) {
     BigInteger one(12345);
 
-    EXPECT_EQ(BigInteger(2469), one / 5);
-    EXPECT_EQ(BigInteger(0), one % 3);
-    EXPECT_EQ(BigInteger(1), one % 2);
+    EXPECT_EQ(2469, one / 5);
+    EXPECT_EQ(0, one % 3);
+    EXPECT_EQ(1, one % 2);
 }
 
 TEST(BigInt, MinusOperation) {
     BigInteger one(12345);
     BigInteger two(12345);
 
-    EXPECT_EQ("0", (one - two).ToString());
-    EXPECT_EQ("0", (two - one).ToString());
+    EXPECT_EQ(0, one - two);
+    EXPECT_EQ(0, two - one);
 
     one = 12345;
     two = -12345;
 
-    EXPECT_EQ("24690", (one - two).ToString());
-    EXPECT_EQ("-24690", (two - one).ToString());
+    EXPECT_EQ(24690, one - two);
+    EXPECT_EQ(-24690, two - one);
 
     one = -12345;
     two = 12340;
-    EXPECT_EQ("-24685", (one - two).ToString());
+    EXPECT_EQ(-24685, one - two);
 }
 
 TEST(BigInt, LessOperation) {
@@ -156,4 +163,6 @@ TEST(BigInt, EqOperation) {
     ASSERT_FALSE(small_negative == small_positive);
 
     ASSERT_FALSE(big_negative == big_positive);
+}
+
 }
