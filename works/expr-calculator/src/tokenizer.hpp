@@ -9,48 +9,40 @@
 namespace calc::tokenizer {
 
 struct NumberToken {
-  big_numbers::BigInteger value;
+    big_numbers::BigInteger value;
 };
 
-enum class BracketToken {
-  kOpen, kClose
-};
+enum class BracketToken { kOpen, kClose };
 
-enum class AddOpToken {
-  kPlus, kMinus
-};
+enum class AddOpToken { kPlus, kMinus };
 
-enum class MulOpToken {
-  kMult, kDiv, kModule
-};
+enum class MulOpToken { kMult, kDiv, kModule };
 
-using Token =
-    std::variant<NumberToken, BracketToken, AddOpToken, MulOpToken>;
+using Token = std::variant<NumberToken, BracketToken, AddOpToken, MulOpToken>;
 
 class Tokenizer {
 public:
-  Tokenizer() = delete;
-  Tokenizer(std::unique_ptr<std::istream>);
+    Tokenizer() = delete;
+    Tokenizer(std::unique_ptr<std::istream>);
 
-  Tokenizer(Tokenizer&&);
-  Tokenizer(const Tokenizer&) = delete;
+    Tokenizer(Tokenizer&&);
+    Tokenizer(const Tokenizer&) = delete;
 
-  Tokenizer& operator=(Tokenizer&& other);
-  Tokenizer& operator=(const Tokenizer&) = delete;
-  
+    Tokenizer& operator=(Tokenizer&& other);
+    Tokenizer& operator=(const Tokenizer&) = delete;
 
-  bool IsEnd();
+    bool IsEnd();
 
-  void Next();
+    void Next();
 
-  Token GetToken();  
+    Token GetToken();
 
 private:
-  void SkipEmpty();
+    void SkipEmpty();
 
-  std::unique_ptr<std::istream> input_;
-  bool is_end_{false};
-  Token cur_token_{};
+    std::unique_ptr<std::istream> input_;
+    bool is_end_{false};
+    Token cur_token_{};
 };
 
-}
+}  // namespace calc::tokenizer

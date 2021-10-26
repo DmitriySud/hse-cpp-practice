@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 #include "tokenizer.hpp"
 
 #include <big_integer.hpp>

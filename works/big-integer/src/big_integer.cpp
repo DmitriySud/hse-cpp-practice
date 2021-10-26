@@ -33,8 +33,7 @@ CellType MultTwoCells(CellType lhs, CellType rhs, CellType& carry) {
     CellType res_high = lhs_high * rhs_high;
     CellType res_low = lhs_low * rhs_low;
 
-    CellType res_mid = (lhs_high + lhs_low) * (rhs_high + rhs_low) 
-                        -  res_high - res_low;
+    CellType res_mid = (lhs_high + lhs_low) * (rhs_high + rhs_low) - res_high - res_low;
 
     res_high += res_mid / kHalfModule;
     res_low += (res_mid % kHalfModule) * kHalfModule;
@@ -141,11 +140,11 @@ void AddContainer(ContainerType& lhs, const ContainerType& rhs) {
         CellType res_cell = SumTwoCells(lhs_cell, rhs_cell, new_carry);
         res_cell = SumTwoCells(res_cell, carry, new_carry);
 
-        if (lhs_iter == lhs.end()){
-          lhs.push_back(res_cell);
-          lhs_iter = lhs.end();
+        if (lhs_iter == lhs.end()) {
+            lhs.push_back(res_cell);
+            lhs_iter = lhs.end();
         } else {
-          *lhs_iter++ = res_cell;
+            *lhs_iter++ = res_cell;
         }
         carry = new_carry;
     }
@@ -164,11 +163,11 @@ void SubContainer(ContainerType& lhs, const ContainerType& rhs) {
         CellType res_cell = DifTwoCells(lhs_cell, rhs_cell, new_carry);
         res_cell = DifTwoCells(res_cell, carry, new_carry);
 
-        if (lhs_iter == lhs.end()){
-          lhs.push_back(res_cell);
-          lhs_iter = lhs.end();
+        if (lhs_iter == lhs.end()) {
+            lhs.push_back(res_cell);
+            lhs_iter = lhs.end();
         } else {
-          *lhs_iter++ = res_cell;
+            *lhs_iter++ = res_cell;
         }
         carry = new_carry;
     }
@@ -191,11 +190,11 @@ void InvSubContainer(ContainerType& lhs, const ContainerType& rhs) {
         CellType res_cell = DifTwoCells(rhs_cell, lhs_cell, new_carry);
         res_cell = DifTwoCells(res_cell, carry, new_carry);
 
-        if (lhs_iter == lhs.end()){
-          lhs.push_back(res_cell);
-          lhs_iter = lhs.end();
+        if (lhs_iter == lhs.end()) {
+            lhs.push_back(res_cell);
+            lhs_iter = lhs.end();
         } else {
-          *lhs_iter++ = res_cell;
+            *lhs_iter++ = res_cell;
         }
         carry = new_carry;
     }
@@ -291,25 +290,25 @@ BigInteger& BigInteger::FixSign() {
 }
 
 BigInteger& BigInteger::operator+=(const BigInteger& other) {
-  if (sign_ == other.sign_) {
-    AddContainer(container_, other.container_);
-  } else if (AbsoluteCompare<More>(container_, other.container_)) {
-    SubContainer(container_, other.container_);
-  } else {
-    sign_ = other.sign_;
-    InvSubContainer(container_, other.container_); 
-    FixSign();
-  }
+    if (sign_ == other.sign_) {
+        AddContainer(container_, other.container_);
+    } else if (AbsoluteCompare<More>(container_, other.container_)) {
+        SubContainer(container_, other.container_);
+    } else {
+        sign_ = other.sign_;
+        InvSubContainer(container_, other.container_);
+        FixSign();
+    }
 
-  return *this;
+    return *this;
 }
 
 BigInteger& BigInteger::operator-=(const BigInteger& other) {
-  return this->operator+=(-other);
+    return this->operator+=(-other);
 }
 
 BigInteger BigInteger::operator+(const BigInteger& other) const {
-  return BigInteger(*this) += other; 
+    return BigInteger(*this) += other;
 }
 
 BigInteger BigInteger::operator-(const BigInteger& other) const {
@@ -342,7 +341,6 @@ BigInteger BigInteger::operator*(const BigInteger& other) const {
     for (auto& item : this->container_) {
         res += BigInteger(1, MultiplyOne(other.container_, item, shift++));
     }
-
 
     return res;
 }

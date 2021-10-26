@@ -12,15 +12,15 @@ Calculator::Calculator(tokenizer::Tokenizer&& tokenizer) : tokenizer_(std::move(
 }
 
 big_numbers::BigInteger Calculator::Eval() {
-  return CalcSum();
+    return CalcSum();
 }
 
 Calculator& Calculator::operator=(Calculator&& other) {
-  tokenizer_ = std::move(other.tokenizer_);
-  return *this;
+    tokenizer_ = std::move(other.tokenizer_);
+    return *this;
 }
 
-big_numbers::BigInteger Calculator::CalcMult(){
+big_numbers::BigInteger Calculator::CalcMult() {
     Number lhs = GetNumber();
     Token cur_token = tokenizer_.GetToken();
     tokenizer::MulOpToken* op_ptr = std::get_if<tokenizer::MulOpToken>(&cur_token);
@@ -44,7 +44,7 @@ big_numbers::BigInteger Calculator::CalcMult(){
     return lhs;
 }
 
-big_numbers::BigInteger Calculator::CalcSum(){
+big_numbers::BigInteger Calculator::CalcSum() {
     Number lhs = CalcMult();
     Token cur_token = tokenizer_.GetToken();
     tokenizer::AddOpToken* op_ptr = std::get_if<tokenizer::AddOpToken>(&cur_token);
@@ -67,28 +67,28 @@ big_numbers::BigInteger Calculator::CalcSum(){
     return lhs;
 }
 
-big_numbers::BigInteger Calculator::CalcSubExpr(){
-  Token cur_token = tokenizer_.GetToken();
-  tokenizer::BracketToken* bracket_ptr = std::get_if<tokenizer::BracketToken>(&cur_token);
+big_numbers::BigInteger Calculator::CalcSubExpr() {
+    Token cur_token = tokenizer_.GetToken();
+    tokenizer::BracketToken* bracket_ptr = std::get_if<tokenizer::BracketToken>(&cur_token);
 
-  if (tokenizer_.IsEnd()) {
-      return 0;
-  }
-  if (!bracket_ptr || *bracket_ptr != tokenizer::BracketToken::kOpen) {
-      throw std::runtime_error("Expected (");
-  }
+    if (tokenizer_.IsEnd()) {
+        return 0;
+    }
+    if (!bracket_ptr || *bracket_ptr != tokenizer::BracketToken::kOpen) {
+        throw std::runtime_error("Expected (");
+    }
 
-  tokenizer_.Next();
-  Number res = CalcSum();
+    tokenizer_.Next();
+    Number res = CalcSum();
 
-  cur_token = tokenizer_.GetToken();
-  bracket_ptr = std::get_if<tokenizer::BracketToken>(&cur_token);
-  if (tokenizer_.IsEnd() || !bracket_ptr || *bracket_ptr != tokenizer::BracketToken::kClose) {
-      throw std::runtime_error("Expected )");
-  }
-  tokenizer_.Next();
+    cur_token = tokenizer_.GetToken();
+    bracket_ptr = std::get_if<tokenizer::BracketToken>(&cur_token);
+    if (tokenizer_.IsEnd() || !bracket_ptr || *bracket_ptr != tokenizer::BracketToken::kClose) {
+        throw std::runtime_error("Expected )");
+    }
+    tokenizer_.Next();
 
-  return res;
+    return res;
 }
 
 big_numbers::BigInteger Calculator::GetNumber() {
@@ -104,7 +104,7 @@ big_numbers::BigInteger Calculator::GetNumber() {
         return CalcSubExpr();
 
         if (!bracket_ptr) {
-          throw std::runtime_error("Unexpected token. Number or ( is expected");
+            throw std::runtime_error("Unexpected token. Number or ( is expected");
         }
     }
 
