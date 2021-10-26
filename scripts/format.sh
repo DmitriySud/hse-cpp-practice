@@ -3,7 +3,7 @@
 GET_STAGED="git diff --name-only --cached"
 GET_NOT_STAGED="git ls-files --modified"
 FILES_MASK=".*\.(cxx|cpp|hpp|h)$"
-ALL_FILES="find . -type f -regex '.*\.\(cxx\|cpp\|hpp\|h\)$'"
+ALL_FILES="find . -path ./third_party/* -prune -o -type f -regex '.*\.\(cxx\|cpp\|hpp\|h\)$'"
 
 function format-list {
 for file in $(eval $1); do
