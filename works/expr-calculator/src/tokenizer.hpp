@@ -23,7 +23,10 @@ using Token = std::variant<NumberToken, BracketToken, AddOpToken, MulOpToken>;
 class Tokenizer {
 public:
     Tokenizer() = delete;
-    Tokenizer(std::unique_ptr<std::istream>);
+    /// Use this constructor when you track objects lifetime yourself
+    Tokenizer(std::istream*);
+    /// Use this constructor when you can give objects ownership to this class
+    Tokenizer(std::unique_ptr<std::istream>&&);
 
     Tokenizer(Tokenizer&&);
     Tokenizer(const Tokenizer&) = delete;
@@ -39,10 +42,12 @@ public:
 
 private:
     void SkipEmpty();
+    bool StreamEnd();
 
-    std::unique_ptr<std::istream> input_;
-    bool is_end_{false};
+    std::unique_ptr<std::istream> u_ptr_{nullptr};
+    std::istream* input_;
     Token cur_token_{};
+    bool is_end_{false};
 };
 
 }  // namespace calc::tokenizer

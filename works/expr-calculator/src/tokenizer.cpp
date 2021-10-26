@@ -1,4 +1,5 @@
 #include "tokenizer.hpp"
+#include <iostream>
 
 namespace calc::tokenizer {
 
@@ -10,21 +11,29 @@ int ToDigit(char c) {
 
 }  // namespace
 
-Tokenizer::Tokenizer(std::unique_ptr<std::istream> input) : input_(std::move(input)) {
+Tokenizer::Tokenizer(std::istream* input) : input_(input) {
+    Next();
+}
+
+Tokenizer::Tokenizer(std::unique_ptr<std::istream>&& input)
+    : u_ptr_(std::move(input)), input_(u_ptr_.get()) {
     Next();
 }
 
 Tokenizer::Tokenizer(Tokenizer&& other)
-    : input_(std::move(other.input_)), is_end_(other.is_end_), cur_token_(other.cur_token_) {
+    : u_ptr_(std::move(other.u_ptr_)),
+      input_(u_ptr_ ? u_ptr_.get() : other.input_),
+      cur_token_(other.cur_token_),
+      is_end_(other.is_end_) {
+    other.input_ = nullptr;
+    other.u_ptr_ = nullptr;
 }
 
-// Tokenizer::Tokenizer(const Tokenizer& other)
-//: input_(other.input_), is_end_(other.is_end_), cur_token_(other.cur_token_) {
-// Next();
-//}
-
 Tokenizer& Tokenizer::operator=(Tokenizer&& other) {
-    input_ = std::move(other.input_);
+    u_ptr_ = std::move(other.u_ptr_);
+    input_ = u_ptr_ ? u_ptr_.get() : other.input_;
+    other.input_ = nullptr;
+    other.u_ptr_ = nullptr;
     cur_token_ = other.cur_token_;
     is_end_ = other.is_end_;
 
@@ -32,9 +41,13 @@ Tokenizer& Tokenizer::operator=(Tokenizer&& other) {
 }
 
 void Tokenizer::SkipEmpty() {
-    while (!input_->eof() && input_->peek() == ' ') {
+    while (!StreamEnd() && input_->peek() == ' ') {
         input_->get();
     }
+}
+
+bool Tokenizer::StreamEnd() {
+    return input_->eof() || input_->peek() == '\n';
 }
 
 bool Tokenizer::IsEnd() {
@@ -43,7 +56,7 @@ bool Tokenizer::IsEnd() {
 
 void Tokenizer::Next() {
     SkipEmpty();
-    is_end_ = input_->eof();
+    is_end_ = StreamEnd();
 
     if (is_end_) {
         return;
@@ -67,7 +80,7 @@ void Tokenizer::Next() {
     } else if (std::isdigit(cur_c)) {
         std::string res_str;
         res_str.push_back(cur_c);
-        while (!input_->eof() && std::isdigit(input_->peek())) {
+        while (!StreamEnd() && std::isdigit(input_->peek())) {
             cur_c = input_->get();
             res_str.push_back(cur_c);
         }

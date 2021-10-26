@@ -7,7 +7,7 @@ namespace calc::calculator {
 
 namespace {
 Calculator BuildCalculator(std::string some_str) {
-    tokenizer::Tokenizer tokenizer(std::make_unique<std::istringstream>(some_str));
+    tokenizer::Tokenizer tokenizer(std::make_unique<std::istringstream>(std::move(some_str)));
     return Calculator(std::move(tokenizer));
 }
 }  // namespace
