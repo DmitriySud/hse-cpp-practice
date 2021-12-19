@@ -60,7 +60,8 @@ TEST(BigInt, MultOperation) {
     BigInteger one(12345);
 
     EXPECT_EQ(61725, one * 5);
-    EXPECT_EQ(BigInteger("100000000000000000000"), BigInteger("1000000000") * BigInteger("100000000000"));
+    EXPECT_EQ(BigInteger("100000000000000000000"),
+              BigInteger("1000000000") * BigInteger("100000000000"));
 }
 
 TEST(BigInt, DivOperation) {
@@ -165,4 +166,4 @@ TEST(BigInt, EqOperation) {
     ASSERT_FALSE(big_negative == big_positive);
 }
 
-}
+}  // namespace big_numbers
